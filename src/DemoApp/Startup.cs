@@ -37,7 +37,7 @@ namespace DemoApp
 
             app.UseStaticFiles();
 
-            app.UseMvc(o => o.MapRoute("Home", "/"));
+            app.UseMvc();
         }
     }
 }
