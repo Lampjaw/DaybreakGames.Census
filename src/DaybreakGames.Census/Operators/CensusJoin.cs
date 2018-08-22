@@ -49,12 +49,12 @@ namespace DaybreakGames.Census.Operators
             Outer = isOuter;
         }
 
-        public void ShowFields(IEnumerable<string> fields)
+        public void ShowFields(params string[] fields)
         {
             Show = fields;
         }
 
-        public void HideFields(IEnumerable<string> fields)
+        public void HideFields(params string[] fields)
         {
             Hide = fields;
         }
