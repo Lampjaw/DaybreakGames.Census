@@ -1,0 +1,31 @@
+﻿<h3>Try entering part of a character name to search up to 10 or enter a complete outfit alias (case sensitive)</h3>
+<hr />
+<div>
+    <form class="form-inline" role="form" id="characterInput" asp-action="GetCharacter" asp-controller="Demo" method="post">
+        <div class="form-group">
+            <label>Character Name</label>
+            <input name="characterName" class="form-control" value="Lamp"/>
+            <button type="submit">Submit</button>
+        </div>
+    </form>
+</div>
+<div>
+    <h3>Character Result</h3>
+    <pre>@ViewData["CharacterList"]</pre>
+</div>
+<br /><br />
+<hr />
+<br /><br />
+<div>
+    <form class="form-inline" role="form" id="outfitInput" asp-action="GetOutfit" asp-controller="Demo" method="post">
+        <div class="form-group">
+            <label>Outfit Alias</label>
+            <input name="outfitAlias" class="form-control" value="DA"/>
+            <button type="submit">Submit</button>
+        </div>
+    </form>
+</div>
+<div>
+    <h3>Outfit Result</h3>
+    <pre>@ViewData["Outfit"]</pre>
+</div>

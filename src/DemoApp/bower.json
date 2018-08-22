@@ -1,0 +1,11 @@
+{
+    "name": "demo-app",
+    "private": true,
+    "dependencies": {
+        "bootstrap": "v3.3.7",
+        "jquery": "3.2.1"
+    },
+    "resolutions": {
+        "jquery": "3.2.1"
+    }
+}
