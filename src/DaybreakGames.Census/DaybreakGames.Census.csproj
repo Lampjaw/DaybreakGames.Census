@@ -5,9 +5,10 @@
   </PropertyGroup>
     
   <PropertyGroup>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
     <Description>
-Please see the documentation for all available attributes and their usage
+This is an UNOFFICIAL package and is in no way associated or supported by Daybreak Games Company.
+Please see the project page for documentation.
     </Description>
     <Copyright>Copyright 2018 - Matthew Tremper</Copyright>
     <Authors>VoidwellLabs</Authors>

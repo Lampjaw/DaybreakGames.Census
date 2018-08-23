@@ -2,6 +2,17 @@
 
 [![NuGet](https://img.shields.io/nuget/v/DaybreakGames.Census.svg)](https://www.nuget.org/packages/DaybreakGames.Census/)
 
+**This package is unofficial and is NOT in any way supported by Daybreak Games.**
+
+All use of game data and other content must comply with [Daybreak Games Intellectual Property policy](http://census.daybreakgames.com/#intellectual-property)
+and Daybreak Game Company's [Terms of Service](https://www.daybreakgames.com/termsofservice.vm?locale=en_US).
+
+---
+
+DaybreakGames.Census is a library that makes it much easier to use the Census API provided by Daybreak Games Company.
+
+For a full demonstration check out the [DemoApp](https://github.com/Lampjaw/DaybreakGames.Census/tree/master/src/DemoApp)!
+
 ## Table of Contents
 
 - [Installing](#installing)
@@ -18,6 +29,7 @@
 - [Join to another service](#join-to-another-service)
 - [Tree results on a field](#tree-results-on-a-field)
 - [Getting the url of the query](#getting-the-url-of-the-query)
+- [Streaming data](#streaming-data)
 
 ### Installing
 
@@ -169,3 +181,10 @@ Tree objects have the following methods:
 ```C#
 Uri uri = query.GetUri();
 ```
+
+### Streaming data
+
+This package also allows you to leverage the Census' websocket service to get data
+in real time. Inject `ICensusStreamClient` and subcribe to events.
+See the [WebsocketMonitor class in the DemoApp](https://github.com/Lampjaw/DaybreakGames.Census/blob/master/src/DemoApp/WebsocketMonitor.cs)
+for a full example.
