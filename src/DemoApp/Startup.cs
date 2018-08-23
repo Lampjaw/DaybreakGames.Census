@@ -25,6 +25,11 @@ namespace DemoApp
             services.AddMvc();
 
             services.AddCensusServices();
+
+            services.AddSingleton<IWebsocketMonitor, WebsocketMonitor>();
+
+            // Uncomment the line below to demo the websocket client
+            //services.AddHostedService<WebsocketMonitorHostedService>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)

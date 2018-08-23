@@ -5,7 +5,7 @@
   </PropertyGroup>
     
   <PropertyGroup>
-    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <Version>1.0.2</Version>
     <Description>
 Please see the documentation for all available attributes and their usage
     </Description>
