@@ -72,10 +72,7 @@ namespace DemoApp
 
         public void Dispose()
         {
-            if (_client != null && _client is IDisposable disClient)
-            {
-                disClient.Dispose();
-            }
+            _client?.Dispose();
         }
     }
 }

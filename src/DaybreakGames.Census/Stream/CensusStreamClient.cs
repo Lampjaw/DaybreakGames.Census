@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DaybreakGames.Census.Stream
 {
-    public class CensusStreamClient : ICensusStreamClient, IDisposable
+    public class CensusStreamClient : ICensusStreamClient
     {
         private readonly IOptions<CensusOptions> _options;
         private readonly ILogger<CensusStreamClient> _logger;

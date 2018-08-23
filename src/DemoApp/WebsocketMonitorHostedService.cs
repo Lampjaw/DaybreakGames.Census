@@ -6,21 +6,21 @@ namespace DemoApp
 {
     public class WebsocketMonitorHostedService : IHostedService
     {
-        private IWebsocketMonitor _hostedService { get; set; }
+        private readonly IWebsocketMonitor _service;
 
-        public WebsocketMonitorHostedService(IWebsocketMonitor hostedService)
+        public WebsocketMonitorHostedService(IWebsocketMonitor service)
         {
-            _hostedService = hostedService;
+            _service = service;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            return _hostedService.OnApplicationStartup(cancellationToken);
+            return _service.OnApplicationStartup(cancellationToken);
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            return _hostedService.OnApplicationShutdown(cancellationToken);
+            return _service.OnApplicationShutdown(cancellationToken);
         }
     }
 }

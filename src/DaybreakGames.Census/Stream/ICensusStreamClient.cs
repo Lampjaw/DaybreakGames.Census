@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace DaybreakGames.Census.Stream
 {
-    public interface ICensusStreamClient
+    public interface ICensusStreamClient: IDisposable
     {
         CensusStreamClient SetServiceId(string serviceId);
         CensusStreamClient SetServiceNamespace(string serviceNamespace);
