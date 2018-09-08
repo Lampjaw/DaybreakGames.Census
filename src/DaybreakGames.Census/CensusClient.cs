@@ -13,7 +13,7 @@ using DaybreakGames.Census.JsonConverters;
 
 namespace DaybreakGames.Census
 {
-    public class CensusClient : ICensusClient, IDisposable
+    public class CensusClient : ICensusClient
     {
         private readonly IOptions<CensusOptions> _options;
         private readonly ILogger<CensusClient> _logger;

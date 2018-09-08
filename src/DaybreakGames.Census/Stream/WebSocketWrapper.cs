@@ -16,8 +16,8 @@ namespace DaybreakGames.Census.Stream
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly CancellationToken _cancellationToken;
 
-        private Action<string, WebSocketWrapper> _onMessage;
-        private Action<string, WebSocketWrapper> _onDisconnected;
+        private Func<string, Task> _onMessage;
+        private Action<string> _onDisconnected;
 
         protected WebSocketWrapper(string uri)
         {
@@ -64,7 +64,7 @@ namespace DaybreakGames.Census.Stream
         /// </summary>
         /// <param name="onDisconnect">The Action to call</param>
         /// <returns></returns>
-        public WebSocketWrapper OnDisconnect(Action<string, WebSocketWrapper> onDisconnect)
+        public WebSocketWrapper OnDisconnect(Action<string> onDisconnect)
         {
             _onDisconnected = onDisconnect;
             return this;
@@ -75,7 +75,7 @@ namespace DaybreakGames.Census.Stream
         /// </summary>
         /// <param name="onMessage">The Action to call.</param>
         /// <returns></returns>
-        public WebSocketWrapper OnMessage(Action<string, WebSocketWrapper> onMessage)
+        public WebSocketWrapper OnMessage(Func<string, Task> onMessage)
         {
             _onMessage = onMessage;
             return this;
@@ -126,7 +126,7 @@ namespace DaybreakGames.Census.Stream
             try
             {
                 await _ws.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
-                CallOnDisconnected("Application normal closure");
+                _onDisconnected?.Invoke("Application normal closure");
             }
             finally
             {
@@ -142,28 +142,35 @@ namespace DaybreakGames.Census.Stream
             {
                 while (_ws.State == WebSocketState.Open)
                 {
-                    var stringResult = new StringBuilder();
+                    var result = await _ws.ReceiveAsync(new ArraySegment<byte>(buffer), _cancellationToken);
 
-
-                    WebSocketReceiveResult result;
-                    do
+                    if (result.MessageType == WebSocketMessageType.Close)
                     {
-                        result = await _ws.ReceiveAsync(new ArraySegment<byte>(buffer), _cancellationToken);
+                        await DisconnectAsync();
+                    }
+                    else
+                    {
+                        var count = result.Count;
 
-                        if (result.MessageType == WebSocketMessageType.Close)
+                        while (!result.EndOfMessage)
                         {
-                            await DisconnectAsync();
+                            if (count >= ReceiveChunkSize)
+                            {
+                                await DisconnectAsync();
+                                return;
+                            }
+
+                            result = await _ws.ReceiveAsync(new ArraySegment<byte>(buffer, count, ReceiveChunkSize - count), CancellationToken.None);
+                            count += result.Count;
                         }
-                        else
+
+                        var receivedString = Encoding.UTF8.GetString(buffer, 0, count);
+
+                        if (_onMessage != null)
                         {
-                            var str = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                            stringResult.Append(str);
+                            await _onMessage(receivedString);
                         }
-
-                    } while (!result.EndOfMessage);
-
-                    CallOnMessage(stringResult);
-
+                    }
                 }
             }
             catch (Exception ex)
@@ -171,7 +178,7 @@ namespace DaybreakGames.Census.Stream
                 if (ex.InnerException != null && ex.InnerException is ObjectDisposedException)
                     return;
 
-                CallOnDisconnected(ex.Message);
+                _onDisconnected?.Invoke(ex.Message);
             }
             finally
             {
@@ -179,26 +186,9 @@ namespace DaybreakGames.Census.Stream
             }
         }
 
-        private void CallOnMessage(StringBuilder stringResult)
-        {
-            if (_onMessage != null)
-                RunInTask(() => _onMessage(stringResult.ToString(), this));
-        }
-
-        private void CallOnDisconnected(string error = null)
-        {
-            if (_onDisconnected != null)
-                RunInTask(() => _onDisconnected(error, this));
-        }
-
         private void StartListening()
         {
             Task.Run(() => StartListen());
-        }
-
-        private static void RunInTask(Action action)
-        {
-            Task.Run(action);
         }
 
         public void Dispose()

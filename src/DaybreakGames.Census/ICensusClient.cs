@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace DaybreakGames.Census
 {
-    public interface ICensusClient
+    public interface ICensusClient: IDisposable
     {
         Task<T> ExecuteQuery<T>(CensusQuery query);
         Task<IEnumerable<T>> ExecuteQueryList<T>(CensusQuery query);

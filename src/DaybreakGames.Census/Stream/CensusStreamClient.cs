@@ -109,7 +109,7 @@ namespace DaybreakGames.Census.Stream
         {
             _client = WebSocketWrapper.Create(GetEndpoint())
                 .OnDisconnect(HandleDisconnect)
-                .OnMessage(HandleMessage);
+                .OnMessage(_onMessage);
 
             await _client.Connect();
 
@@ -125,7 +125,7 @@ namespace DaybreakGames.Census.Stream
             }
         }
 
-        private async void HandleDisconnect(string error, WebSocketWrapper ws)
+        private async void HandleDisconnect(string error)
         {
             _logger.LogInformation($"Census stream client has closed: {error}");
 
@@ -136,14 +136,6 @@ namespace DaybreakGames.Census.Stream
                 _logger.LogInformation("Attempting reconnect of Census stream...");
 
                 await ConnectInternal();
-            }
-        }
-
-        private void HandleMessage(string message, WebSocketWrapper ws)
-        {
-            if (_onMessage != null)
-            {
-                Task.Run(() => _onMessage(message));
             }
         }
 
