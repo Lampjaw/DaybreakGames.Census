@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Websocket.Client;
 
 namespace DemoApp
 {
@@ -12,19 +13,19 @@ namespace DemoApp
         private readonly ICensusStreamClient _client;
         private readonly ILogger<WebsocketMonitor> _logger;
 
+        private readonly CensusStreamSubscription _subscription = new CensusStreamSubscription
+        {
+            Characters = new[] { "all" },
+            Worlds = new[] { "17" },
+            EventNames = new[] { "PlayerLogin", "PlayerLogout" }
+        };
+
         public WebsocketMonitor(ICensusStreamClient censusStreamClient, ILogger<WebsocketMonitor> logger)
         {
             _client = censusStreamClient;
             _logger = logger;
 
-            var subscription = new CensusStreamSubscription
-            {
-                Characters = new[] { "all" },
-                Worlds = new[] { "all" },
-                EventNames = new[] { "PlayerLogin" }
-            };
-
-            _client.Subscribe(subscription)
+            _client.OnConnect(OnConnect)
                 .OnMessage(OnMessage)
                 .OnDisconnect(OnDisconnect);
         }
@@ -39,11 +40,27 @@ namespace DemoApp
             return _client.ConnectAsync();
         }
 
-        private Task OnMessage(string message)
+        private Task OnConnect(ReconnectionType type)
+        {
+            if (type == ReconnectionType.Initial)
+            {
+                _logger.LogInformation("Websocket Client Connected!!");
+            }
+            else
+            {
+                _logger.LogInformation("Websocket Client Reconnected!!");
+            }
+
+            _client.Subscribe(_subscription);
+
+            return Task.CompletedTask;
+        }
+
+        private async Task OnMessage(string message)
         {
             if (message == null)
             {
-                return Task.CompletedTask;
+                return;
             }
 
             JToken msg;
@@ -52,20 +69,18 @@ namespace DemoApp
             {
                 msg = JToken.Parse(message);
             }
-            catch (Exception)
+            catch(Exception)
             {
-                _logger.LogError("Failed to parse message: {0}", message);
-                return Task.CompletedTask;
+                _logger.LogError(91097, "Failed to parse message: {0}", message);
+                return;
             }
 
             _logger.LogInformation($"Received Message: {msg.ToString()}");
-
-            return Task.CompletedTask;
         }
 
-        private Task OnDisconnect(string error)
+        private Task OnDisconnect(DisconnectionInfo info)
         {
-            _logger.LogInformation("Websocket Client Disconnected!!");
+            _logger.LogInformation($"Websocket Client Disconnected: {info.Type}");
 
             return Task.CompletedTask;
         }

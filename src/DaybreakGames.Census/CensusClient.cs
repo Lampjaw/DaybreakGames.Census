@@ -49,65 +49,73 @@ namespace DaybreakGames.Census
             var requestUri = CreateRequestUri(query);
             _logger.LogTrace(85400, $"Getting Census request for: \"{ requestUri}\"");
 
-            HttpResponseMessage result;
-
             try
             {
-                result = await _client.GetAsync(requestUri);
-            }
-            catch (HttpRequestException ex)
-            {
-                var exMessage = ex.InnerException?.Message ?? ex.Message;
-                var errorMessage = $"Census query failed for query: {requestUri}: {exMessage}";
+                HttpResponseMessage result;
 
-                throw new CensusConnectionException(errorMessage);
-            }
-
-            _logger.LogTrace(85401, $"Census Request completed with status code: {result.StatusCode}");
-
-            if (!result.IsSuccessStatusCode)
-            {
-                throw new CensusConnectionException($"Census returned status code {result.StatusCode}");
-            }
-
-            JToken jResult;
-
-            try
-            {
-                var serializedString = await result.Content.ReadAsStringAsync();
-                jResult = JsonConvert.DeserializeObject<JToken>(serializedString, new JsonSerializerSettings
+                try
                 {
-                    ContractResolver = new UnderscorePropertyNamesContractResolver()
-                });
-            }
-            catch (JsonReaderException)
-            {
-                throw new CensusException("Failed to read JSON. Endpoint may be in maintence mode.");
-            }
-
-            var error = jResult.Value<string>("error");
-            var errorCode = jResult.Value<string>("errorCode");
-
-            if (error != null)
-            {
-                if (error == "service_unavailable")
-                {
-                    throw new CensusServiceUnavailableException();
+                    result = await _client.GetAsync(requestUri);
                 }
-                else
+                catch (HttpRequestException ex)
                 {
-                    throw new CensusServerException(error);
+                    var exMessage = ex.InnerException?.Message ?? ex.Message;
+                    var errorMessage = $"Census query failed for query: {requestUri}: {exMessage}";
+
+                    throw new CensusConnectionException(errorMessage);
                 }
+
+                _logger.LogTrace(85401, $"Census Request completed with status code: {result.StatusCode}");
+
+                if (!result.IsSuccessStatusCode)
+                {
+                    throw new CensusConnectionException($"Census returned status code {result.StatusCode}");
+                }
+
+                JToken jResult;
+
+                try
+                {
+                    var serializedString = await result.Content.ReadAsStringAsync();
+                    jResult = JsonConvert.DeserializeObject<JToken>(serializedString, new JsonSerializerSettings
+                    {
+                        ContractResolver = new UnderscorePropertyNamesContractResolver()
+                    });
+                }
+                catch (JsonReaderException)
+                {
+                    throw new CensusException("Failed to read JSON. Endpoint may be in maintence mode.");
+                }
+
+                var error = jResult.Value<string>("error");
+                var errorCode = jResult.Value<string>("errorCode");
+
+                if (error != null)
+                {
+                    if (error == "service_unavailable")
+                    {
+                        throw new CensusServiceUnavailableException();
+                    }
+                    else
+                    {
+                        throw new CensusServerException(error);
+                    }
+                }
+                else if (errorCode != null)
+                {
+                    var errorMessage = jResult.Value<string>("errorMessage");
+
+                    throw new CensusServerException($"{errorCode}: {errorMessage}");
+                }
+
+                var jBody = jResult.SelectToken($"{query.ServiceName}_list");
+                return Convert<T>(jBody);
             }
-            else if (errorCode != null)
+            catch(Exception ex)
             {
-                var errorMessage = jResult.Value<string>("errorMessage");
-
-                throw new CensusServerException($"{errorCode}: {errorMessage}");
+                HandleCensusExceptions(ex, requestUri);
+                throw ex;
             }
-
-            var jBody = jResult.SelectToken($"{query.ServiceName}_list");
-            return Convert<T>(jBody);
         }
 
         public async Task<IEnumerable<T>> ExecuteQueryBatch<T>(CensusQuery query)
@@ -157,6 +165,30 @@ namespace DaybreakGames.Census
 
             var encArgs = query.ToString();
             return new Uri($"http://{Constants.CensusEndpoint}/s:{sId}/get/{ns}/{encArgs}");
+        }
+
+        private void HandleCensusExceptions(Exception ex, Uri query)
+        {
+            if (!_options.Value.LogCensusErrors)
+            {
+                return;
+            }
+
+            switch(ex)
+            {
+                case CensusServiceUnavailableException cex:
+                    _logger.LogError(84531, cex, "Census service unavailable during query: {0}", query);
+                    break;
+                case CensusServerException cex:
+                    _logger.LogError(84532, cex, "Census server failed for query: {0}", query);
+                    break;
+                case CensusConnectionException cex:
+                    _logger.LogError(84533, cex, "Census connection failed for query: {0}", query);
+                    break;
+                default:
+                    _logger.LogError(84530, ex, "Unknown exception throw when processing census query: {0}", query);
+                    break;
+            }
         }
 
         private T Convert<T>(JToken content)

@@ -1,6 +1,6 @@
 ﻿namespace DaybreakGames.Census
 {
-    internal static class Constants
+    public static class Constants
     {
         public static readonly string DefaultServiceId = "example";
         public static readonly string DefaultServiceNamespace = "ps2";
