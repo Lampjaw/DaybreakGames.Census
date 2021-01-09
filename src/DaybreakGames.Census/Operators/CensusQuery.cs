@@ -115,6 +115,20 @@ namespace DaybreakGames.Census.Operators
             return newJoin;
         }
 
+        public CensusJoin JoinService(string service, Action<CensusJoin> configuration)
+        {
+            var newJoin = new CensusJoin(service);
+
+            if (Join == null)
+            {
+                Join = new List<CensusJoin>();
+            }
+
+            Join.Add(newJoin);
+            configuration(newJoin);
+            return newJoin;
+        }
+
         public CensusTree TreeField(string field)
         {
             var newTree = new CensusTree(field);

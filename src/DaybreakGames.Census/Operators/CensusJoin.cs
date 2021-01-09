@@ -97,6 +97,14 @@ namespace DaybreakGames.Census.Operators
             return newJoin;
         }
 
+        public CensusJoin JoinService(string service, System.Action<CensusJoin> configuration)
+        {
+            var newJoin = new CensusJoin(service);
+            Join.Add(newJoin);
+            configuration(newJoin);
+            return newJoin;
+        }
+
         public override string ToString()
         {
             var baseString = base.ToString();

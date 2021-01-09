@@ -265,6 +265,30 @@ namespace DaybreakGames.Census.Test
         }
 
         [TestMethod]
+        public void Census_AddJoin_WithConfig()
+        {
+            var service = "character";
+            var ns = "ps2";
+            var key = "testkey";
+
+            var expectedUri = new Uri($"http://{Constants.CensusEndpoint}/s:{key}/get/{ns}/{service}/?c:join=joinedservice^terms:field1=12'field2=34^on:ontestfield^to:totestfield^inject_at:testinject");
+
+            var query = GetCensusQueryFactory().Create(service);
+
+            var joinedService = query.JoinService("joinedservice",j=> {
+                j.ToField("totestfield");
+                j.OnField("ontestfield");
+                j.WithInjectAt("testinject");
+                j.Where("field1").Equals("12");
+                j.Where("field2").Equals("34");
+            });
+
+            var censusUri = query.GetUri();
+
+            Assert.AreEqual(expectedUri, censusUri);
+        }
+
+        [TestMethod]
         public void Census_AddJoinWithSubJoin()
         {
             var service = "character";
@@ -285,6 +309,25 @@ namespace DaybreakGames.Census.Test
 
             Assert.AreEqual(expectedUri, censusUri);
         }
+
+        public void Census_AddJoinWithSubJoin_WithConfig()
+        {
+            var service = "character";
+            var ns = "ps2";
+            var key = "testkey";
+
+            var expectedUri = new Uri($"http://{Constants.CensusEndpoint}/s:{key}/get/{ns}/{service}/?c:join=joinedservice^on:testfield(subjoined^list:true)");
+
+            var query = GetCensusQueryFactory().Create(service);
+
+            query.JoinService("joinedservice",j=>j.OnField("testfield"))
+                 .JoinService("subjoined",j=>j.IsList(true));
+
+            var censusUri = query.GetUri();
+
+            Assert.AreEqual(expectedUri, censusUri);
+        }
+
 
         [TestMethod]
         public void Census_AddTree()
