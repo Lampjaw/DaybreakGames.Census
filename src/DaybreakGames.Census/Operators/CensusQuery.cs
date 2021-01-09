@@ -117,14 +117,7 @@ namespace DaybreakGames.Census.Operators
 
         public CensusJoin JoinService(string service, Action<CensusJoin> configuration)
         {
-            var newJoin = new CensusJoin(service);
-
-            if (Join == null)
-            {
-                Join = new List<CensusJoin>();
-            }
-
-            Join.Add(newJoin);
+            var newJoin = JoinService(service);
             configuration(newJoin);
             return newJoin;
         }
