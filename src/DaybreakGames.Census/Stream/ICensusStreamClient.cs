@@ -8,6 +8,7 @@ namespace DaybreakGames.Census.Stream
     {
         CensusStreamClient SetServiceId(string serviceId);
         CensusStreamClient SetServiceNamespace(string serviceNamespace);
+        CensusStreamClient SetEndpoint(string endpoint);
         CensusStreamClient OnConnect(Func<ReconnectionType, Task> onConnect);
         CensusStreamClient OnDisconnect(Func<DisconnectionInfo, Task> onDisconnect);
         CensusStreamClient OnMessage(Func<string, Task> onMessage);

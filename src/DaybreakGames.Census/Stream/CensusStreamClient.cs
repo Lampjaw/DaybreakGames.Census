@@ -26,6 +26,7 @@ namespace DaybreakGames.Census.Stream
 
         private string _serviceId { get; set; }
         private string _serviceNamespace { get; set; }
+        private string _endpoint { get; set; }
 
         public CensusStreamClient(IOptions<CensusOptions> options, ILogger<CensusStreamClient> logger)
         {
@@ -127,8 +128,9 @@ namespace DaybreakGames.Census.Stream
         {
             var ns = _serviceNamespace ?? _options.Value.CensusServiceNamespace ?? Constants.DefaultServiceNamespace;
             var sId = _serviceId ?? _options.Value.CensusServiceId ?? Constants.DefaultServiceId;
+            var endpoint = _endpoint ?? _options.Value.CensusWebsocketEndpoint ?? Constants.CensusWebsocketEndpoint;
 
-            return new Uri($"{Constants.CensusWebsocketEndpoint}?environment={ns}&service-id=s:{sId}");
+            return new Uri($"{endpoint}?environment={ns}&service-id=s:{sId}");
         }
 
         public CensusStreamClient SetServiceId(string serviceId)
@@ -151,6 +153,18 @@ namespace DaybreakGames.Census.Stream
             }
 
             _serviceNamespace = serviceNamespace;
+
+            return this;
+        }
+
+        public CensusStreamClient SetEndpoint(string endpoint)
+        {
+            if (string.IsNullOrWhiteSpace(endpoint))
+            {
+                throw new ArgumentNullException(nameof(endpoint));
+            }
+
+            _endpoint = endpoint;
 
             return this;
         }
