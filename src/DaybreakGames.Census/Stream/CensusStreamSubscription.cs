@@ -9,5 +9,6 @@ namespace DaybreakGames.Census.Stream
         public IEnumerable<string> Characters { get; set; }
         public IEnumerable<string> Worlds { get; set; }
         public IEnumerable<string> EventNames { get; set; }
+        public bool LogicalAndCharactersWithWorlds { get; set; }
     }
 }
