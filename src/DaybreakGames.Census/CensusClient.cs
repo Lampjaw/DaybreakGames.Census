@@ -160,11 +160,12 @@ namespace DaybreakGames.Census
 
         public Uri CreateRequestUri(CensusQuery query)
         {
+            var endpoint = _options.Value.CensusApiEndpoint;
             var sId = query.ServiceId ?? _options.Value.CensusServiceId;
             var ns = query.ServiceNamespace ?? _options.Value.CensusServiceNamespace;
 
             var encArgs = query.ToString();
-            return new Uri($"http://{Constants.CensusEndpoint}/s:{sId}/get/{ns}/{encArgs}");
+            return new Uri($"http://{endpoint}/s:{sId}/get/{ns}/{encArgs}");
         }
 
         private void HandleCensusExceptions(Exception ex, Uri query)
