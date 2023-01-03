@@ -7,6 +7,7 @@ namespace DaybreakGames.Census
 {
     public interface ICensusClient: IDisposable
     {
+        CensusQuery CreateQuery(string serviceName);
         Task<T> ExecuteQuery<T>(CensusQuery query);
         Task<IEnumerable<T>> ExecuteQueryList<T>(CensusQuery query);
         Task<IEnumerable<T>> ExecuteQueryBatch<T>(CensusQuery query);

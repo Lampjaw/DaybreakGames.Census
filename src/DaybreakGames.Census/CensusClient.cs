@@ -39,6 +39,11 @@ namespace DaybreakGames.Census
             _deserializer = JsonSerializer.Create(settings);
         }
 
+        public CensusQuery CreateQuery(string serviceName)
+        {
+            return new CensusQuery(this, serviceName);
+        }
+
         public Task<IEnumerable<T>> ExecuteQueryList<T>(CensusQuery query)
         {
             return ExecuteQuery<IEnumerable<T>>(query);
