@@ -1,5 +1,7 @@
 # DaybreakGames.Census
 
+# This Repository is Archived! Future versions of this Library may be found **[HERE](https://github.com/Voidwell/DaybreakGames.Census)**
+
 [![NuGet](https://img.shields.io/nuget/v/DaybreakGames.Census.svg)](https://www.nuget.org/packages/DaybreakGames.Census/)
 
 **This package is unofficial and is NOT in any way supported by Daybreak Games.**
